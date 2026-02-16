@@ -1,5 +1,7 @@
 # Jorge2D Library Documentation
 
+(under construction)
+
 The **Jorge2D** library provides an abstraction layer over the HTML5 Canvas API, facilitating the creation of geometric shapes, images, text, and scene structuring for games or 2D animations. It includes classes for managing the canvas, drawing static objects, loading resources, and creating an update loop (game loop).
 
 ---
