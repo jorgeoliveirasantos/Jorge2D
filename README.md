@@ -1,270 +1,270 @@
-# Documentação da Biblioteca Jorge2D
+# Jorge2D Library Documentation
 
-A biblioteca **Jorge2D** fornece uma camada de abstração sobre a API Canvas do HTML5, facilitando a criação de formas geométricas, imagens, textos e a estruturação de cenas para jogos ou animações 2D. Ela inclui classes para gerenciar o canvas, desenhar objetos estáticos, carregar recursos e criar um loop de atualização (game loop).
+The **Jorge2D** library provides an abstraction layer over the HTML5 Canvas API, facilitating the creation of geometric shapes, images, text, and scene structuring for games or 2D animations. It includes classes for managing the canvas, drawing static objects, loading resources, and creating an update loop (game loop).
 
 ---
 
-## Índice
+## Table of Contents
 
-1. [Instalação e Uso Básico](#instalação-e-uso-básico)
-2. [Classe `Drawing`](#classe-drawing)
-   - [Construtor](#construtor)
-   - [Propriedades](#propriedades)
-   - [Métodos para desenho estático](#métodos-para-desenho-estático)
-   - [Carregamento de imagem](#carregamento-de-imagem)
-   - [Escrita de texto](#escrita-de-texto)
-3. [Classe `Game` e o Game Loop](#classe-game-e-o-game-loop)
-4. [Objetos Renderizáveis](#objetos-renderizáveis)
+1. [Installation and Basic Usage](#installation-and-basic-usage)
+2. [`Drawing` Class](#drawing-class)
+   - [Constructor](#constructor)
+   - [Properties](#properties)
+   - [Static drawing methods](#static-drawing-methods)
+   - [Image loading](#image-loading)
+   - [Text writing](#text-writing)
+3. [`Game` Class and Game Loop](#game-class-and-game-loop)
+4. [Renderable Objects](#renderable-objects)
    - [`Path`](#path)
    - [`Picture`](#picture)
    - [`Text`](#text)
-5. [Hierarquia de Cena (Experimental)](#hierarquia-de-cena-experimental)
-6. [Observações e Limitações](#observações-e-limitações)
+5. [Scene Hierarchy (Experimental)](#scene-hierarchy-experimental)
+6. [Observations and Limitations](#observations-and-limitations)
 
 ---
 
-## Instalação e Uso Básico
+## Installation and Basic Usage
 
-A biblioteca é fornecida como um módulo ES6. Para usá-la em seu projeto, importe as classes necessárias:
+The library is provided as an ES6 module. To use it in your project, import the necessary classes:
 
 ```javascript
 import { Drawing, Game, Path, Picture, Text } from './Jorge2D.js';
 ```
 
-Em seguida, crie uma instância de `Drawing` para obter o canvas e, opcionalmente, um objeto `Game` para controlar o loop de animação.
+Then, create a `Drawing` instance to obtain the canvas and, optionally, a `Game` object to control the animation loop.
 
 ```javascript
-const canvasApp = new Drawing('black'); // fundo preto
-document.body.appendChild(canvasApp.canvas); // já é anexado automaticamente
+const canvasApp = new Drawing('black'); // black background
+document.body.appendChild(canvasApp.canvas); // already attached automatically
 ```
 
 ---
 
-## Classe `Drawing`
+## `Drawing` Class
 
-A classe `Drawing` é responsável por criar e gerenciar o elemento `<canvas>`, além de fornecer métodos para desenhar formas estáticas e carregar recursos.
+The `Drawing` class is responsible for creating and managing the `<canvas>` element, as well as providing methods for drawing static shapes and loading resources.
 
-### Construtor
+### Constructor
 
 ```javascript
 new Drawing(backgroundColor)
 ```
 
-- **backgroundColor** (string): cor de fundo do canvas (qualquer valor CSS válido).
+- **backgroundColor** (string): canvas background color (any valid CSS value).
 
-O construtor cria o canvas, define seu tamanho como `window.innerWidth` x `window.innerHeight`, aplica estilos posicionais e o anexa ao `document.body`. Também registra eventos de redimensionamento e movimento do mouse.
+The constructor creates the canvas, sets its size to `window.innerWidth` x `window.innerHeight`, applies positional styles, and attaches it to `document.body`. It also registers resize and mouse movement events.
 
-### Propriedades
+### Properties
 
-- `canvas` – referência ao elemento `<canvas>`.
-- `context` – contexto 2D do canvas.
-- `width`, `height` – dimensões do canvas (nota: no código atual há uma troca entre largura/altura, veja [Observações](#observações-e-limitações)).
-- `cursor` – objeto `{ x, y }` contendo a posição do mouse relativa ao canvas.
-- `blendModes` – objeto com os modos de composição suportados (valores para uso com `ctx.globalCompositeOperation`).
-- `filters` – objeto com métodos auxiliares para filtros (apenas `linearGradient` esboçado).
+- `canvas` – reference to the `<canvas>` element.
+- `context` – canvas 2D context.
+- `width`, `height` – canvas dimensions (note: in the current code there's a swap between width/height, see [Observations](#observations-and-limitations)).
+- `cursor` – `{ x, y }` object containing mouse position relative to the canvas.
+- `blendModes` – object with supported composition modes (values for use with `ctx.globalCompositeOperation`).
+- `filters` – object with helper methods for filters (only `linearGradient` outlined).
 
-### Métodos para desenho estático
+### Static drawing methods
 
-Todos os métodos abaixo retornam uma instância de [`Path`](#path). O desenho só ocorre quando o método `render()` do objeto for chamado (normalmente dentro do game loop).
+All methods below return a [`Path`](#path) instance. Drawing only occurs when the object's `render()` method is called (typically inside the game loop).
 
 #### `drawPath(svgData, fillColor, strokeColor, lineWidth, lineDash)`
-Desenha um caminho SVG arbitrário.
-- **svgData** (string): dados do caminho no formato SVG (ex: `"M20 20 l200 0 l0 100 l-200 0 Z"`).
-- **fillColor**, **strokeColor** (string): cores CSS.
-- **lineWidth** (number): espessura do traço.
-- **lineDash** (array): padrão de traço‑pontilhado (ex: `[15,5]`).
+Draws an arbitrary SVG path.
+- **svgData** (string): path data in SVG format (e.g., `"M20 20 l200 0 l0 100 l-200 0 Z"`).
+- **fillColor**, **strokeColor** (string): CSS colors.
+- **lineWidth** (number): stroke thickness.
+- **lineDash** (array): dash pattern (e.g., `[15,5]`).
 
-#### `drawPoligon(sides, radius, x, y, fillColor, strokeColor, lineWidth, lineDash)`
-Desenha um polígono regular.
-- **sides** (number): número de lados.
-- **radius** (number): distância do centro aos vértices.
-- **x, y** (number): coordenadas do centro.
+#### `drawPolygon(sides, radius, x, y, fillColor, strokeColor, lineWidth, lineDash)`
+Draws a regular polygon.
+- **sides** (number): number of sides.
+- **radius** (number): distance from center to vertices.
+- **x, y** (number): center coordinates.
 
 #### `drawStar(points, radius, aperture, x, y, fillColor, strokeColor, lineWidth, lineDash)`
-Desenha uma estrela.
-- **points** (number): número de pontas.
-- **radius** (number): raio externo.
-- **aperture** (number): fator de abertura (0 → bold, 1 → fino, 0.5 → normal).
-- **x, y** (number): centro.
+Draws a star.
+- **points** (number): number of points.
+- **radius** (number): outer radius.
+- **aperture** (number): aperture factor (0 → bold, 1 → thin, 0.5 → normal).
+- **x, y** (number): center.
 
 #### `drawRectangle(width, height, x, y, fillColor, strokeColor, lineWidth, lineDash)`
-Desenha um retângulo.
-- **width, height** (number): dimensões.
-- **x, y** (number): canto superior esquerdo.
+Draws a rectangle.
+- **width, height** (number): dimensions.
+- **x, y** (number): top-left corner.
 
 #### `drawCircle(radius, x, y, fillColor, strokeColor, lineWidth, lineDash)`
-Desenha um círculo.
-- **radius** (number): raio.
-- **x, y** (number): centro.
+Draws a circle.
+- **radius** (number): radius.
+- **x, y** (number): center.
 
 #### `drawEllipse(width, height, x, y, fillColor, strokeColor, lineWidth, lineDash)`
-Desenha uma elipse.
-- **width, height** (number): largura e altura totais.
-- **x, y** (number): centro.
+Draws an ellipse.
+- **width, height** (number): total width and height.
+- **x, y** (number): center.
 
-### Carregamento de imagem
+### Image loading
 
 #### `loadImage(url, posX, posY, width, height)`
-Carrega uma imagem de forma assíncrona e retorna uma `Promise` que resolve para um objeto [`Picture`](#picture).
-- **url** (string): caminho da imagem.
-- **posX, posY** (number): posição no canvas.
-- **width, height** (number): dimensões de exibição (se omitido, usa as dimensões originais).
+Asynchronously loads an image and returns a `Promise` that resolves to a [`Picture`](#picture) object.
+- **url** (string): image path.
+- **posX, posY** (number): position on canvas.
+- **width, height** (number): display dimensions (if omitted, uses original dimensions).
 
-Exemplo:
+Example:
 ```javascript
-const minhaImg = await desenho.loadImage('foto.jpg', 100, 50, 200, 150);
+const myImg = await drawing.loadImage('photo.jpg', 100, 50, 200, 150);
 ```
 
-### Escrita de texto
+### Text writing
 
 #### `writeText(text, textStyle, fontSize, fontFamily, fontColor, posX, posY)`
-Cria um objeto [`Text`](#text) que pode ser renderizado.
-- **text** (string): conteúdo.
+Creates a [`Text`](#text) object that can be rendered.
+- **text** (string): content.
 - **textStyle** (string): `"normal"`, `"bold"`, `"italic"`.
-- **fontSize** (string): tamanho no formato CSS (ex: `"12pt"`, `"16px"`).
-- **fontFamily** (string): família da fonte.
-- **fontColor** (string): cor CSS.
-- **posX, posY** (number): posição do centro do texto.
+- **fontSize** (string): size in CSS format (e.g., `"12pt"`, `"16px"`).
+- **fontFamily** (string): font family.
+- **fontColor** (string): CSS color.
+- **posX, posY** (number): text center position.
 
 ---
 
-## Classe `Game` e o Game Loop
+## `Game` Class and Game Loop
 
-A classe `Game` implementa um loop de animação básico.
+The `Game` class implements a basic animation loop.
 
 ```javascript
-const jogo = new Game(canvasApp.canvas);
-jogo.onUpdate((deltaTime) => {
-    // limpeza automática do canvas já é feita
-    // desenhe seus objetos aqui
+const game = new Game(drawing.canvas);
+game.onUpdate((deltaTime) => {
+    // automatic canvas clearing is already done
+    // draw your objects here
 });
 ```
 
-### Construtor
+### Constructor
 
 ```javascript
 new Game(canvas)
 ```
-- **canvas** – referência ao elemento `<canvas>` (obtido de `Drawing.canvas`).
+- **canvas** – reference to the `<canvas>` element (obtained from `Drawing.canvas`).
 
-### Métodos
+### Methods
 
 #### `onUpdate(gameLoopCallback)`
-Inicia o loop de animação. O callback recebe `deltaTime` (diferença em ms desde o último frame) e é executado a cada quadro. Antes de chamar o callback, o canvas é completamente limpo (`clearRect`).
+Starts the animation loop. The callback receives `deltaTime` (difference in ms since the last frame) and executes each frame. Before calling the callback, the canvas is completely cleared (`clearRect`).
 
 ---
 
-## Objetos Renderizáveis
+## Renderable Objects
 
-Os objetos retornados pelos métodos de desenho devem ser renderizados explicitamente através do método `render()`. Eles podem ser armazenados e reutilizados a cada quadro.
+Objects returned by drawing methods must be explicitly rendered using the `render()` method. They can be stored and reused each frame.
 
 ### `Path`
 
-Representa uma forma geométrica definida por um caminho SVG.
+Represents a geometric shape defined by an SVG path.
 
-#### Propriedades
+#### Properties
 - `canvas`, `svgData`, `fillColor`, `strokeColor`, `lineWidth`, `lineDash`.
 
-#### Métodos
-- `render()` – desenha o caminho no canvas.
+#### Methods
+- `render()` – draws the path on the canvas.
 
 ### `Picture`
 
-Representa uma imagem.
+Represents an image.
 
-#### Construtor (não usado diretamente)
-Normalmente criado via `Drawing.loadImage()`.
+#### Constructor (not used directly)
+Typically created via `Drawing.loadImage()`.
 
-#### Propriedades
-- `img` – objeto `Image` carregado.
+#### Properties
+- `img` – loaded `Image` object.
 - `posX`, `posY`, `width`, `height`.
 
-#### Métodos
-- `render()` – desenha a imagem.
-- `replace(url)` – substitui a imagem por outra (carregamento assíncrono).
+#### Methods
+- `render()` – draws the image.
+- `replace(url)` – replaces the image with another (asynchronous loading).
 
 ### `Text`
 
-Representa um texto.
+Represents text.
 
-#### Construtor (não usado diretamente)
-Criado via `Drawing.writeText()`.
+#### Constructor (not used directly)
+Created via `Drawing.writeText()`.
 
-#### Propriedades
+#### Properties
 - `text`, `textStyle`, `fontSize`, `fontFamily`, `fontColor`, `posX`, `posY`.
-- `properties` – objeto para futuras transformações/animacões.
+- `properties` – object for future transformations/animations.
 
-#### Métodos
-- `render()` – desenha o texto centralizado na posição especificada.
-
----
-
-## Hierarquia de Cena (Experimental)
-
-As classes `Scene`, `Node` e `GameObject` estão parcialmente implementadas e sugerem uma estrutura de árvore para organizar os elementos do jogo. No estado atual, apenas `Picture` herda de `GameObject`, mas os métodos de transformação (`transform`, `animate`) estão vazios ou incompletos. Recomenda‑se não utilizá‑los até que sejam devidamente implementados.
+#### Methods
+- `render()` – draws the text centered at the specified position.
 
 ---
 
-## Observações e Limitações
+## Scene Hierarchy (Experimental)
 
-1. **Dimensões do canvas**  
-   No construtor de `Drawing`, as propriedades `width` e `height` estão invertidas:  
-   `this.height = window.innerWidth;` e `this.width = window.innerHeight;`.  
-   Isso pode causar comportamento inesperado ao usar coordenadas baseadas nessas propriedades. Sugere‑se corrigir para:  
+The `Scene`, `Node`, and `GameObject` classes are partially implemented and suggest a tree structure for organizing game elements. In the current state, only `Picture` inherits from `GameObject`, but transformation methods (`transform`, `animate`) are empty or incomplete. It is recommended not to use them until properly implemented.
+
+---
+
+## Observations and Limitations
+
+1. **Canvas dimensions**  
+   In the `Drawing` constructor, the `width` and `height` properties are inverted:  
+   `this.height = window.innerWidth;` and `this.width = window.innerHeight;`.  
+   This may cause unexpected behavior when using coordinates based on these properties. It is suggested to correct to:  
    ```javascript
    this.width = window.innerWidth;
    this.height = window.innerHeight;
    ```
 
-2. **Transformações e animações**  
-   Os métodos de `transform` e `animate` nas classes `GameObject`, `Picture` e `Text` estão apenas esboçados (corpos vazios ou com implementação incompleta). Não há suporte real para rotação, escala, etc. no momento.
+2. **Transformations and animations**  
+   The `transform` and `animate` methods in `GameObject`, `Picture`, and `Text` classes are only outlined (empty bodies or incomplete implementation). There is no real support for rotation, scaling, etc. at the moment.
 
-3. **Filtros e modos de blend**  
-   O objeto `filters` contém apenas um método `linearGradient` que não está funcional (usa `ctx` não definido). Os modos de blend estão listados, mas não são aplicados automaticamente.
+3. **Filters and blend modes**  
+   The `filters` object contains only a `linearGradient` method that is not functional (uses undefined `ctx`). Blend modes are listed but not automatically applied.
 
-4. **Carregamento de áudio/conteúdo**  
-   Os métodos `loadAudio` e `loadContent` estão presentes mas não implementados.
+4. **Audio/content loading**  
+   The `loadAudio` and `loadContent` methods are present but not implemented.
 
-5. **Classe UI**  
-   Está definida mas vazia.
+5. **UI Class**  
+   It is defined but empty.
 
-6. **Uso do `scale` em `Picture.render` e `Text.render`**  
-   Há um `ctx.scale(this.canvas.width / 100, this.canvas.height / 100)` que parece tentar criar um sistema de coordenadas normalizado (0‑100), mas isso interfere nas coordenadas fornecidas. Se não for intencional, remova ou ajuste.
+6. **Use of `scale` in `Picture.render` and `Text.render`**  
+   There is a `ctx.scale(this.canvas.width / 100, this.canvas.height / 100)` that seems to attempt creating a normalized coordinate system (0‑100), but this interferes with the provided coordinates. If not intentional, remove or adjust it.
 
-7. **Evento `resize`**  
-   Ao redimensionar a janela, o canvas é redimensionado, mas as dimensões internas `width`/`height` continuam trocadas.
+7. **`resize` event**  
+   When resizing the window, the canvas is resized, but the internal `width`/`height` dimensions remain swapped.
 
 ---
 
-## Exemplo Completo
+## Complete Example
 
 ```javascript
 import { Drawing, Game } from './Jorge2D.js';
 
 (async () => {
-    // Cria o canvas
-    const desenho = new Drawing('#111');
+    // Create the canvas
+    const drawing = new Drawing('#111');
     
-    // Aguarda carregamento de uma imagem
-    const logo = await desenho.loadImage('logo.png', 50, 50, 100, 100);
+    // Wait for image loading
+    const logo = await drawing.loadImage('logo.png', 50, 50, 100, 100);
     
-    // Cria formas estáticas
-    const retangulo = desenho.drawRectangle(200, 100, 150, 200, 'rgba(255,0,0,0.5)', 'white', 2);
-    const circulo = desenho.drawCircle(60, 400, 250, 'blue', 'yellow', 4, [10,5]);
-    const texto = desenho.writeText('Olá, Jorge2D!', 'bold', '24pt', 'Arial', 'lime', 300, 100);
+    // Create static shapes
+    const rectangle = drawing.drawRectangle(200, 100, 150, 200, 'rgba(255,0,0,0.5)', 'white', 2);
+    const circle = drawing.drawCircle(60, 400, 250, 'blue', 'yellow', 4, [10,5]);
+    const text = drawing.writeText('Hello, Jorge2D!', 'bold', '24pt', 'Arial', 'lime', 300, 100);
     
-    // Inicia o game loop
-    const jogo = new Game(desenho.canvas);
-    jogo.onUpdate((dt) => {
-        // Renderiza todos os objetos (a limpeza do canvas é automática)
+    // Start the game loop
+    const game = new Game(drawing.canvas);
+    game.onUpdate((dt) => {
+        // Render all objects (canvas clearing is automatic)
         logo.render();
-        retangulo.render();
-        circulo.render();
-        texto.render();
+        rectangle.render();
+        circle.render();
+        text.render();
     });
 })();
 ```
 
 ---
 
-Esta documentação cobre o estado atual da biblioteca. Para contribuições ou correções, considere ajustar os pontos listados em [Observações](#observações-e-limitações).
+This documentation covers the current state of the library. For contributions or corrections, consider adjusting the points listed in [Observations](#observations-and-limitations).
